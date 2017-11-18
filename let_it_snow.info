@@ -1,0 +1,6 @@
+core = "7.x"
+description = "A module that uses Flurry jQuery plugin to add snow faling effect to your site"
+name = "Let it Snow"
+
+; NEW LINE
+configure = admin/config/content/let_it_snow

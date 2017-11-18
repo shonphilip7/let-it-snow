@@ -1,0 +1,172 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function let_it_snow_menu() {
+	$items = array();
+
+  $items['admin/config/content/let_it_snow'] = array(
+    'title' => 'Let it Snow',
+    'description' => 'Configuration for let it snow module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('let_it_snow_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Page callback: let it snow settings
+ *
+ * @see let_it_snow_menu()
+ */
+ 
+function let_it_snow_form($form, &$form_state){
+	 $form['let_it_snow_height'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Snow Fall Height</br>(in pixels)'),
+		'#default_value' => variable_get('let_it_snow_height', 600),
+		'#size' => 20,
+		'#description' => t('how far down a snow flake falls.'),
+	 );
+	 $form['let_it_snow_frequency'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Snow Fall Frequncy</br>(in milliseconds)'),
+		'#default_value' => variable_get('let_it_snow_frequency', 100),
+		'#size' => 20,
+		'#description' => t('lower creates more flakes at a time'),
+	 );
+	 $form['let_it_snow_speed'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Snow Fall Speed</br>(in milliseconds)'),
+		'#default_value' => variable_get('let_it_snow_speed', 3000),
+		'#size' => 20,
+		'#description' => t('lower is faster'),
+	 );
+	 $form['let_it_snow_small'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Smallest Snow Flake Size</br>(in pixels)'),
+		'#default_value' => variable_get('let_it_snow_small', 8),
+		'#size' => 20,
+		'#description' => t('size of the smallest flake'),
+	 );
+	 $form['let_it_snow_large'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Largest Snow Flake Size</br>(in pixels)'),
+		'#default_value' => variable_get('let_it_snow_large', 28),
+		'#size' => 20,
+		'#description' => t('size of the largest flake'),
+	 );
+	 $form['let_it_snow_wind'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Wind(in pixels)'),
+		'#default_value' => variable_get('let_it_snow_wind', 40),
+		'#size' => 20,
+		'#description' => t('how far left each flake drifts</br>use negative number to make flakes drift right'),
+	 );
+	 $form['let_it_snow_variance'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Wind Variance(in pixels)'),
+		'#default_value' => variable_get('let_it_snow_variance', 20),
+		'#size' => 20,
+		'#description' => t('to add some zig-zag motion to the flakes</br>use a high number'),
+	 );
+	 $form['#attached']['css'] = array(
+		drupal_get_path('module', 'let_it_snow') . '/css/let_it_snow.css',
+	 );
+	 
+	  return system_settings_form($form);
+ }
+
+/**
+ * Implements validation from the Form API.
+ * 
+ * @param $form
+ *   A structured array containing the elements and properties of the form.
+ * @param $form_state
+ *   An array that stores information about the form's current state 
+ *   during processing.
+ */
+ 
+ function let_it_snow_form_validate($form, &$form_state){
+	 
+	 //height validation
+	 $flake_height = $form_state['values']['let_it_snow_height'];
+	 if(!is_numeric($flake_height)){
+		form_set_error('let_it_snow_height', t('Snow fall height must be a number.'));
+	 }elseif ($flake_height <= 0){
+		form_set_error('let_it_snow_height', t('Snow fall height must be positive.'));
+	 }
+	 //frequency validation
+	 $flake_frequency = $form_state['values']['let_it_snow_frequency'];
+	 if(!is_numeric($flake_frequency)){
+		form_set_error('let_it_snow_frequency', t('Frequency must be a number.'));
+	 }elseif ($flake_frequency <= 0){
+		form_set_error('let_it_snow_frequency', t('Frequency must be positive.'));
+	 }
+	 //speed validation
+	 $flake_speed = $form_state['values']['let_it_snow_speed'];
+	 if(!is_numeric($flake_speed)){
+		form_set_error('let_it_snow_speed', t('Speed must be a number.'));
+	 }elseif ($flake_speed <= 0){
+		form_set_error('let_it_snow_speed', t('Speed must be positive.'));
+	 }
+	 //smallest flake validation
+	 $flake_small = $form_state['values']['let_it_snow_small'];
+	 if(!is_numeric($flake_small)){
+		form_set_error('let_it_snow_small', t('Smallest flake size must be a number.'));
+	 }elseif ($flake_small <= 0){
+		form_set_error('let_it_snow_small', t('Smallest flake size must be positive.'));
+	 }
+	 //largest flake validation
+	 $flake_large = $form_state['values']['let_it_snow_large'];
+	 if(!is_numeric($flake_large)){
+		form_set_error('let_it_snow_large', t('Largest flake size must be a number.'));
+	 }elseif ($flake_large <= 0){
+		form_set_error('let_it_snow_large', t('Largest flake size must be positive.'));
+	 }
+	 //check if smallest flake greater that largest flake
+	 if($flake_small > $flake_large){
+		 form_set_error('let_it_snow_small', t('Smallest flake size must be less than largest flake size.'));
+	 }
+	 //wind validation
+	 $flake_wind = $form_state['values']['let_it_snow_wind'];
+	 if(!is_numeric($flake_wind)){
+		form_set_error('let_it_snow_wind', t(' Wind must be a number.'));
+	 }
+	 //wind variance validation
+	 $flake_variance = $form_state['values']['let_it_snow_variance'];
+	 if(!is_numeric($flake_variance)){
+		form_set_error('let_it_snow_variance', t('Wind variance must be a number.'));
+	 }elseif ($flake_variance <= 0){
+		form_set_error('let_it_snow_variance', t('Wind variance must be positive.'));
+	 }
+	 
+ }
+ 
+ /**
+ * Implementation of hook_init()
+ */
+ function let_it_snow_init(){
+    
+     // Check for front page
+    if(drupal_is_front_page()){ 
+		
+	   $height = variable_get('let_it_snow_height');
+	   $frequency = variable_get('let_it_snow_frequency');
+	   $speed = variable_get('let_it_snow_speed');
+	   $small = variable_get('let_it_snow_small');
+	   $large = variable_get('let_it_snow_large');
+	   $wind = variable_get('let_it_snow_wind');
+	   $variance = variable_get('let_it_snow_variance');
+        // Add js files
+       drupal_add_js(drupal_get_path('module', 'let_it_snow') . '/js/jquery.flurry.js');
+	   drupal_add_js(drupal_get_path('module', 'let_it_snow') . '/js/let_it_snow.js');
+	   drupal_add_js(array('let_it_snow' => array('let_it_snow_height' => $height,'let_it_snow_frequency' => $frequency,
+	   'let_it_snow_speed' => $speed,'let_it_snow_small' => $small,'let_it_snow_large' => $large,'let_it_snow_wind' => $wind,
+	   'let_it_snow_variance' => $variance)), 'setting');
+    }
+}
