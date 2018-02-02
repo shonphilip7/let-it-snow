@@ -1,6 +1,9 @@
+  /**
+   * Name: Let It Snow stylesheet
+   */
 
-/* Configuration form styling */
-#let-it-snow-form .form-item{
+  /* Configuration form styling */
+  #let-it-snow-form .form-item{
 	width: 50%;
     float: left;
-}
+  }
